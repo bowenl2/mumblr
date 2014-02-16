@@ -3,12 +3,12 @@ require 'thor'
 
 class MumblrCLI < Thor
   desc <<-END_DESC
-The "base hostname" or a superset thereof.  These are equivalent:
-lacecard
-http://lacecard.com (if it were a tumblr "custom URL" blog)
-http://lacecard.tumblr.com/post/123
-http://lacecard.tumblr.com
-END_DESC
+     The "base hostname" or a superset thereof.  These are equivalent:
+     lacecard
+     http://lacecard.com (if it were a tumblr "custom URL" blog)
+     http://lacecard.tumblr.com/post/123
+     http://lacecard.tumblr.com
+  END_DESC
   class_option :blog, required: true
   class_option :types, type: :array
   class_option :count, type: :numeric
