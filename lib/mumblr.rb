@@ -1,9 +1,10 @@
 require "mumblr/version"
 require "tumblr_client"
+require "pry"
 
-module Mumblr
-  def base_hostname(input)
-
+class Mumblr
+  def initialize(base_hostname)
+    @base_hostname = base_hostname
   end
 
   # options:
@@ -12,18 +13,35 @@ module Mumblr
   # after_time:
   # before_time:
   # count:
-  def posts_content(blog, options={})
-    blog_posts_hash = client.posts(blog)
-    posts_hash = blog_posts_hash['posts']
-    extract_from_posts(posts_hash)
+  def blog_content(options={})
+    unless @raw_posts
+      @raw_posts = client.posts(@base_hostname, options)
+    end
+
+    extract_from_posts(@raw_posts['posts'])
   end
 
-  def blog_likes_content(blog, options={})
+  def blog_likes_content(options={})
+    unless @raw_likes
+      count_needed = options[:count]
+      @raw_likes = []
+      loop do
+        # TODO add offset to options
+        likes_res = client.blog_likes(@base_hostname, options)
+        @raw_likes += likes_res[''] # todo what key
+        if @raw_likes.length >= likes_res['total_posts'].to_i
+          break
+        end
+      end
+    end
 
+    extract_from_posts(@raw_likes['liked_posts'])
   end
+
+  private
 
   def extract_from_posts(posts_hash)
-    posts_hash.each do |post_hash|
+    posts_hash.flat_map do |post_hash|
       # TODO: Unnecessary metaprogramming
       post_type = post_hash['type'].to_sym
       case post_type
@@ -32,15 +50,21 @@ module Mumblr
       when :video
         extract_videos post_hash
       else
-        throw StandardError, "Unhandled post type: #{post_type}"
+        STDERR.puts("\tSkipping post type: #{post_type}")
       end
     end
   end
 
   def extract_photos(post_hash)
-    post_hash['photos'].each do |photo|
-      puts photo['original_size']['url']
-    end
+    post_hash['photos'].map { |photo| photo['original_size']['url'] }
+  end
+
+  def extract_videos(post_hash)
+    post_hash['video_url']
+  end
+
+  def normalize_base_hostname
+
   end
 
   def client

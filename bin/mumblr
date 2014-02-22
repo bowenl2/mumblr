@@ -1,40 +1,36 @@
 #!/usr/bin/env ruby
 require 'thor'
+require_relative '../lib/mumblr.rb'
 
 class MumblrCLI < Thor
-  desc <<-END_DESC
-     The "base hostname" or a superset thereof.  These are equivalent:
-     lacecard
-     http://lacecard.com (if it were a tumblr "custom URL" blog)
-     http://lacecard.tumblr.com/post/123
-     http://lacecard.tumblr.com
-  END_DESC
-  class_option :blog, required: true
-  class_option :types, type: :array
+  class_option :blog, desc: 'The "base hostname" or a superset thereof'# .  These are equivalent:
+  #    lacecard
+  #    http://lacecard.com (if it were a tumblr "custom URL" blog)
+  #    http://lacecard.tumblr.com/post/123
+  #    http://lacecard.tumblr.com
+  # END_DESC
+  class_option :type, type: :string
   class_option :count, type: :numeric
 
   desc "posts <options>", "List blog's contents' URLs"
   def posts
-
+    engine.blog_content(tumblr_params).each { |url| puts url }
   end
 
   desc "likes <options>", "List blog's likes' contents' URLs"
   def likes
-
+    engine.blog_likes_content.each { |url| puts url }
   end
 
   private
 
-  def wanted_types(options)
-    #TODO This is wrong (use the array in options[:types]
-    all_types = [:videos, :images]
-    type_options = options.select { |k| all_types.include? h }
-    if type_options.values.any?
-      type_options.select {|k,v| v}.keys
-    else
-      all_types
-    end
+  def tumblr_params
+    { type: options[:type] }
+  end
 
+
+  def engine
+    @engine ||= Mumblr.new(options[:blog])
   end
 end
 
