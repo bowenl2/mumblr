@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 require 'thor'
-require_relative '../lib/mumblr.rb'
 
 class MumblrCLI < Thor
   class_option :blog, desc: 'The "base hostname" or a superset thereof'# .  These are equivalent:
