@@ -5,6 +5,7 @@ require "pry"
 class Mumblr
   def initialize(base_hostname)
     @base_hostname = base_hostname
+    normalize_base_hostname
   end
 
   # options:
@@ -26,16 +27,16 @@ class Mumblr
       count_needed = options[:count]
       @raw_likes = []
       loop do
-        # TODO add offset to options
+        options[:offset] = @raw_likes.length
         likes_res = client.blog_likes(@base_hostname, options)
-        @raw_likes += likes_res[''] # todo what key
-        if @raw_likes.length >= likes_res['total_posts'].to_i
+        @raw_likes += likes_res['liked_posts']
+        if @raw_likes.length >= likes_res['liked_count'].to_i
           break
         end
       end
     end
 
-    extract_from_posts(@raw_likes['liked_posts'])
+    extract_from_posts(@raw_likes)
   end
 
   private
@@ -64,7 +65,9 @@ class Mumblr
   end
 
   def normalize_base_hostname
-
+    if match = /(?:http:\/\/)(?<bhn>(?!www).+)\.tumblr\.com/.match(@base_hostname) or match = /(?:http:\/\/)(?<bhn>)(?:\/)/.match(@base_hostname)
+      @base_hostname = match['bhn']
+    end
   end
 
   def client
