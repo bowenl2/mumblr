@@ -19,7 +19,7 @@ class MumblrCLI < Thor
 
   desc "likes <options>", "List blog's likes' contents' URLs"
   def likes
-    engine.blog_likes_content.each { |url| puts url }
+    engine.blog_likes_content(tumblr_params).each { |url| puts url }
   end
 
   private
