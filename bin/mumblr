@@ -2,6 +2,8 @@
 require 'thor'
 require 'mumblr'
 
+Mumblr.load_database("sqlite://#{File.expand_path('~/mumblr.db')}")
+
 class MumblrCLI < Thor
   class_option :blog, desc: 'The "base hostname" or a superset thereof'# .  These are equivalent:
   #    lacecard
@@ -11,15 +13,16 @@ class MumblrCLI < Thor
   # END_DESC
   class_option :type, type: :string
   class_option :count, type: :numeric
+  class_option :download, type: :boolean
 
-  desc "posts <options>", "List blog's contents' URLs"
+  desc "posts <options>", "Enumerate blog's contents' URLs"
   def posts
-    engine.blog_content(tumblr_params).each { |url| puts url }
+
   end
 
-  desc "likes <options>", "List blog's likes' contents' URLs"
+  desc "likes <options>", "Enumerate blog's likes' contents' URLs"
   def likes
-    engine.blog_likes_content(tumblr_params).each { |url| puts url }
+
   end
 
   private
@@ -28,9 +31,22 @@ class MumblrCLI < Thor
     { type: options[:type] }
   end
 
+  def content_store_base
+    File.expand_path('~/mumblr-data')
+  end
+
+  def download_blog_contents(options={})
+    # TODO
+    # was: engine.blog_content(tumblr_params).each { |url| puts url }
+  end
+
+  def download_blog_likes_contents(options={})
+    # TODO
+    # Was: engine.blog_likes_content(tumblr_params).each { |url| puts url }
+  end
 
   def engine
-    @engine ||= Mumblr.new(options[:blog])
+    @engine ||= Mumblr::Engine.new(options[:blog])
   end
 end
 

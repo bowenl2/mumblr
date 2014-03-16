@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Mumblr::VERSION
   spec.authors       = ["Liam Bowen"]
   spec.email         = ["LiamBowen@gmail.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
+  spec.summary       = %q{A utility and library for archiving Tumblr posts}
+  #spec.description   = %q{TODO: Write a longer description. Optional.}
   spec.homepage      = ""
   spec.license       = "MIT"
 
@@ -21,6 +21,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "tumblr_client"
   spec.add_runtime_dependency "thor"
   spec.add_runtime_dependency "progressbar"
+  spec.add_runtime_dependency "data_mapper"
 
   spec.add_development_dependency "bundler", "~> 1.5"
   spec.add_development_dependency "rake"
