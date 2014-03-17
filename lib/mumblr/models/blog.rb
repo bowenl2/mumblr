@@ -1,12 +1,25 @@
 
 module Mumblr
   class Blog < Model
+    include DataMapper::Resource
+
     property :id, Serial
     property :name, String
     property :created_at, DateTime
 
     has n, :posts
     has n, :likes
+
+    def self.retrieve(name)
+      unless blog = self.first(name: name)
+
+      end
+      blog
+    end
+
+    def self.api_from_blog(base_hostname)
+
+    end
 
     def posts_contents(options={})
       unless @raw_posts

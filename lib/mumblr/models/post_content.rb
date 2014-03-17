@@ -1,5 +1,7 @@
 module Mumblr
   class PostContent < Model
+    include DataMapper::Resource
+
     property :id, Serial
     property :url, String
     property :retrieved_at, DateTime
