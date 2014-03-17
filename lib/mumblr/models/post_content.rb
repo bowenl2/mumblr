@@ -41,32 +41,38 @@ module Mumblr
     # TODO Refactor this so the callbacks can be passed in
     # origin: 'like' or nil
     def download(directory, origin=nil)
-      dest_path = File.join(directory, post.blog.name, origin)
+      dest_path = File.join(directory, post.blog.name)
+      dest_path = File.join(dest_path, origin) if origin
       FileUtils.mkdir_p(dest_path) unless File.exists?(dest_path)
-      dest_path = File.join(dest_path, File.basename(file_url))
+      dest_path = File.join(dest_path, File.basename(url))
       # TODO Check for cache
       if File.exists?(dest_path)
         STDERR.puts("Skipping #{dest_path} (exists)")
         return
       end
       pbar = nil
+      content_length = nil
       begin
         open(dest_path, 'wb') do |dest_file|
-          open(file_url,
+          open(url,
                content_length_proc: lambda {|t|
+                 content_length = t
                  if t && 0 < t
-                   pbar = ProgressBar.new("...", t)
+                   title = File.basename(url)
+                   pbar = ProgressBar.new(title, t)
                    pbar.file_transfer_mode
                  end
                },
                progress_proc: lambda {|s|
                  pbar.set s if pbar
+                 pbar.finish if pbar and s == content_length
                }) do |f|
             IO.copy_stream(f, dest_file)
           end
         end
+        retrieved_at = DateTime.now
       rescue
-        STDERR.puts("error with #{file_url}")
+        STDERR.puts("error with #{url}")
       end
     end
 
