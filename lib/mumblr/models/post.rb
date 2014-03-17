@@ -4,42 +4,59 @@ module Mumblr
     include DataMapper::Resource
 
     property :id, Serial
+    property :tumblr_id, String
     property :url, String
     property :type, String
     property :timestamp, Integer
     property :reblog_key, String
-    property :source_url, String
-    property :source_title, String
 
     belongs_to :blog
+    has n, :post_contents
+
+
+    MAX_POSTS = 100 # to retrieve per blog
 
     #######################
     # API Utility methods #
     #######################
+    def self.retrieve(blog, options={})
+      Model::logger.debug "Requested contents of #{blog.name}"
+      unless @raw_posts
+        Model::logger.debug "Retrieving from API..."
+        @raw_posts = []
+        # FIXME should retrieve from oldest->newest for caching reasons
+        loop do
+          options[:offset] = @raw_posts.count
+          Model::logger.debug "Retrieving offset: #{@raw_posts.count}"
+          @response = Model.client.posts(blog.name, options)
+          @post_count = @response['blog']['posts'].to_i
+          Model::logger.debug "\tPost count:#{@post_count}"
+          @raw_posts += @response['posts']
 
-    def api_extract_photos(post_hash)
-      # TODO Make these PostContent items
-      post_hash['photos'].map { |photo| photo['original_size']['url'] }
-    end
-
-    def api_extract_videos(post_hash)
-      post_hash['video_url']
-    end
-
-    def api_extract_contents(posts_hash)
-      posts_hash.flat_map do |post_hash|
-        # TODO: Unnecessary metaprogramming
-        post_type = post_hash['type'].to_sym
-        case post_type
-        when :photo
-          extract_photos post_hash
-        when :video
-          extract_videos post_hash
-        else
-          STDERR.puts("\tSkipping post type: #{post_type}")
+          break if @raw_posts.count >= MAX_POSTS or @raw_posts.count >= @post_count
+        end
+        @raw_posts.each do |post_hash|
+          post = from_api(post_hash, blog)
+          PostContent.api_extract_from_post(post, post_hash)
         end
       end
+
     end
 
+    def self.from_api(post_hash, blog)
+      Model::logger.debug("Creating post from tumblr_id: #{post_hash['id']}")
+      begin
+        first_or_create({tumblr_id: post_hash['id']}, {
+                          blog_id: blog.id,
+                          #blog: Blog.first(name: post_hash['blog_name']),
+                          url: post_hash['post_url'],
+                          type: post_hash['type'],
+                          timestamp: post_hash['timestamp'],
+                          reblog_key: post_hash['reblog_key']
+                        })
+      rescue DataMapper::SaveFailureError => e
+        binding.pry
+      end
+    end
   end
 end

@@ -1,35 +1,39 @@
+require 'pry'
 
 module Mumblr
   class Blog < Model
     include DataMapper::Resource
 
     property :id, Serial
+    property :url, String
     property :name, String
+    property :posts_retrieved_at, DateTime
     property :created_at, DateTime
 
     has n, :posts
     has n, :likes
 
-    def self.retrieve(name)
-      unless blog = self.first(name: name)
-
+    def self.retrieve(base_hostname)
+      base_hostname = normalize_base_hostname(base_hostname)
+      Model::logger.debug("Resolved blog to base hostname: #{base_hostname}")
+      blog = Blog.first_or_create({name: base_hostname}, api_hash(base_hostname))
+      if not blog.posts_retrieved_at or blog.posts_retrieved_at < (DateTime.now - (60*60))
+        Post.retrieve(blog)
+        blog.posts_retrieved_at = Time.now
+        blog.save!
       end
+      Model::logger.debug("Got blog: #{blog}")
       blog
     end
 
-    def self.api_from_blog(base_hostname)
-
-    end
-
-    def posts_contents(options={})
-      unless @raw_posts
-        @raw_posts = []
-        loop do
-          options[:offset] = @raw_posts.count
-          @raw_posts += client.posts(@base_hostname, option)
-        end
-      end
-      extract_from_posts(@raw_posts['posts'])
+    def self.api_hash(name)
+      Model::logger.debug("Retrieving from API for hostname: #{name}")
+      api_hash = Model.client.blog_info(name)
+      {
+        url: api_hash['blog']['url'],
+        name: api_hash['blog']['name'],
+        created_at:  DateTime.now
+      }
     end
 
     # options:

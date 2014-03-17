@@ -1,8 +1,10 @@
 #!/usr/bin/env ruby
 require 'thor'
 require 'mumblr'
+require 'awesome_print'
 
 db_path = File.expand_path('~/mumblr.db')
+DataMapper::Model.raise_on_save_failure = true
 Mumblr::Mumblr.load_database(db_path)
 
 module Mumblr
@@ -20,9 +22,17 @@ module Mumblr
 
     desc "posts <options>", "Process blog's contents' URLs"
     def posts
-      blog = Blog.first_or_create(name: options[:blog]) do |b|
-        puts "Creating blog: #{options[:blog]}"
-
+      puts "Enumerating contents of #{options[:blog]}"
+      blog = Blog.retrieve(options[:blog])
+      blog.posts.each do |p|
+        puts "Contents of #{p.url}"
+        p.post_contents.each do |pc|
+          if options[:download]
+            pc.download(content_store_base)
+          else
+            puts "#{pc.url}"
+          end
+        end
       end
     end
 
@@ -32,13 +42,6 @@ module Mumblr
     end
 
     private
-
-    def blog(base_hostname)
-      blog = Mumblr::Blog.retrieve(base_hostname)
-      blog.posts_contents.each do |url| # urls
-        puts url
-      end
-    end
 
     def tumblr_params
       { type: options[:type] }
