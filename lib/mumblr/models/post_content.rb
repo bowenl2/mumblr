@@ -41,6 +41,9 @@ module Mumblr
     # TODO Refactor this so the callbacks can be passed in
     # origin: 'like' or nil
     def download(directory, origin=nil)
+      unless url
+        Model::logger.warn("Skipping download for #{id} (no URL specified)")
+      end
       dest_path = File.join(directory, post.blog.name)
       dest_path = File.join(dest_path, origin) if origin
       FileUtils.mkdir_p(dest_path) unless File.exists?(dest_path)
@@ -60,6 +63,7 @@ module Mumblr
                  if t && 0 < t
                    title = File.basename(url)
                    pbar = ProgressBar.new(title, t)
+                   pbar.format = "%-30s %3d%% %s %s"
                    pbar.file_transfer_mode
                  end
                },
@@ -68,6 +72,8 @@ module Mumblr
                  pbar.finish if pbar and s == content_length
                }) do |f|
             IO.copy_stream(f, dest_file)
+            full_dest = File.expand_path(dest_path)
+            STDERR.puts("file://#{full_dest}")
           end
         end
         retrieved_at = DateTime.now
