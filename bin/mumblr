@@ -51,16 +51,6 @@ module Mumblr
       File.expand_path('~/mumblr-data')
     end
 
-    def download_blog_contents(options={})
-      # TODO
-      # was: engine.blog_content(tumblr_params).each { |url| puts url }
-    end
-
-    def download_blog_likes_contents(options={})
-      # TODO
-      # Was: engine.blog_likes_content(tumblr_params).each { |url| puts url }
-    end
-
     def engine
       @engine ||= Mumblr::Engine.new(options[:blog])
     end
