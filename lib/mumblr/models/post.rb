@@ -14,7 +14,7 @@ module Mumblr
     has n, :post_contents
 
 
-    MAX_POSTS = 100 # to retrieve per blog
+    MAX_POSTS = 500 # to retrieve per blog
 
     #######################
     # API Utility methods #
@@ -27,12 +27,16 @@ module Mumblr
         # FIXME should retrieve from oldest->newest for caching reasons
         loop do
           options[:offset] = @raw_posts.count
-          Model::logger.debug "Retrieving offset: #{@raw_posts.count}"
+          Model::logger.debug "Retrieving 20 from offset: #{@raw_posts.count}"
           @response = Model.client.posts(blog.name, options)
           @post_count = @response['blog']['posts'].to_i
           Model::logger.debug "\tPost count:#{@post_count}"
-          @raw_posts += @response['posts']
-
+          posts = @response['posts']
+          if posts.length == 0
+            Model::logger.warn "Retrieved zero posts when asking for 20"
+            break
+          end
+          @raw_posts += posts
           break if @raw_posts.count >= MAX_POSTS or @raw_posts.count >= @post_count
         end
         @raw_posts.each do |post_hash|
