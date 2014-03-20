@@ -13,15 +13,11 @@ module Mumblr
     has n, :posts
     has n, :likes
 
-    def self.retrieve(base_hostname)
+    def self.retrieve(base_hostname, tumblr_params)
       base_hostname = normalize_base_hostname(base_hostname)
       Model::logger.debug("Resolved blog to base hostname: #{base_hostname}")
       blog = Blog.first_or_create({name: base_hostname}, api_hash(base_hostname))
-      if not blog.posts_retrieved_at or blog.posts_retrieved_at < (DateTime.now - (60*60))
-        Post.retrieve(blog)
-        blog.posts_retrieved_at = Time.now
-        blog.save!
-      end
+      Post.retrieve(blog, tumblr_params)
       Model::logger.debug("Got blog: #{blog}")
       blog
     end
