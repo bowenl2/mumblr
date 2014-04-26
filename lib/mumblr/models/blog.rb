@@ -17,7 +17,7 @@ module Mumblr
       base_hostname = normalize_base_hostname(base_hostname)
       Model::logger.debug("Resolved blog to base hostname: #{base_hostname}")
       blog = Blog.first_or_create({name: base_hostname}, api_hash(base_hostname))
-      Post.retrieve(blog, tumblr_params)
+      Post.retrieve_from_blog(blog, tumblr_params)
       Model::logger.debug("Got blog: #{blog}")
       blog
     end
@@ -30,6 +30,15 @@ module Mumblr
         name: api_hash['blog']['name'],
         created_at:  DateTime.now
       }
+    end
+
+    def self.retrieve_likes(base_hostname, options={})
+      base_hostname = normalize_base_hostname(base_hostname)
+      Model::logger.debug("")
+      blog = Blog.first_or_create({name: base_hostname}, api_hash(base_hostname))
+      Post.retrieve_from_blog(blog, tumblr_params)
+      Model::logger.debug("Got blog: #{blog}")
+      blog
     end
 
     # options:
