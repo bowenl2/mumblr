@@ -19,7 +19,7 @@ module Mumblr
     #######################
     # API Utility methods #
     #######################
-    def self.retrieve(blog, options={})
+    def self.retrieve_from_blog(blog, options={})
       Model::logger.debug "Requested contents of #{blog.name}"
       unless @raw_posts
         Model::logger.debug "Retrieving from API..."
