@@ -38,18 +38,22 @@ module Mumblr
     desc "likes <options>", "Process blog's likes' contents' URLs"
     def likes
       puts "Enumerating contents of likes of #{options[:blog]}"
-      blog = Blog.retrieve(options[:blog])
+      blog = Blog.retrieve(options[:blog], tumblr_params)
 
     end
 
     private
 
     def tumblr_params
-      { type: options[:type] }
+      { type: options[:type], count: options[:count] }
     end
 
     def content_store_base
-      File.expand_path('~/mumblr-data')
+      if options[:data_store]
+        options[:data_store]
+      else
+        File.expand_path('~/mumblr-data')
+      end
     end
 
     def engine
