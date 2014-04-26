@@ -72,6 +72,8 @@ module Mumblr
                  pbar.finish if pbar and s == content_length
                }) do |f|
             IO.copy_stream(f, dest_file)
+            retrieved_at = DateTime.now
+            save
             full_dest = File.expand_path(dest_path)
             STDERR.puts("file://#{full_dest}")
           end
