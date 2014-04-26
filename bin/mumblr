@@ -4,7 +4,6 @@ require 'mumblr'
 require 'awesome_print'
 
 db_path = File.expand_path('~/mumblr.db')
-DataMapper::Model.raise_on_save_failure = true
 Mumblr::Mumblr.load_database(db_path)
 
 module Mumblr

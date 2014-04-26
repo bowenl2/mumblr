@@ -8,6 +8,7 @@ require "data_mapper"
 module Mumblr
   class Mumblr
     def self.load_database(db_path)
+      DataMapper::Model.raise_on_save_failure = true
       DataMapper::Property::String.length(255)
       connection_string = "sqlite://#{db_path}"
       require 'mumblr/models/model'
