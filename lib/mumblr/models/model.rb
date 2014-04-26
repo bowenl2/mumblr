@@ -4,7 +4,7 @@ require "logger"
 module Mumblr
   class Model
     def self.normalize_base_hostname(base_hostname)
-      if match = /(?:http:\/\/)(?<bhn>(?!www).+)\.tumblr\.com/.match(base_hostname) or match = /(?:http:\/\/)(?<bhn>)(?:\/)/.match(base_hostname)
+      if match = /(?:http:\/\/)?(?<bhn>(?!www).+)\.tumblr\.com/.match(base_hostname) or match = /(?:http:\/\/)(?<bhn>)(?:\/)/.match(base_hostname)
         match['bhn']
       end
     end

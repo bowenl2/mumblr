@@ -17,7 +17,7 @@ module Mumblr
       DataMapper.finalize
       #unless File.exists?(db_path)
       DataMapper.auto_upgrade!
-    #end
+      #end
     end
   end
 end
