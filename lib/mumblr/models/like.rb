@@ -9,6 +9,7 @@ module Mumblr
     belongs_to :post
 
     MAX_LIKES = 100
+    MAX_FREEWHEEL = 10 # Go through 10 blank pages before giving up
 
     def self.retrieve_from_blog(blog, tumblr_params)
       api_params = {
@@ -25,6 +26,9 @@ module Mumblr
       @raw_likes = []
       found_total = 0
       total_likes = nil
+      # Apparently sometimes the liked post counts are inaccurate.
+      # freewheel_count will count how many blank pages we get to before giving up
+      freewheel_count = 0
 
       loop do
         Model::logger.debug "Relevant likes collected: #{@raw_likes.count}"
@@ -45,6 +49,12 @@ module Mumblr
           Model::logger.debug "There are a total of: #{total_likes}"
         end
         likes_res_count = likes_res['liked_posts'].count
+        if likes_res_count == 0
+          Model::logger.warn "Retrieved zero posts when asking for #{api_params[:limit]}"
+          freewheel_count += 1
+        else
+          freewheel_count = 0
+        end
         found_total += likes_res_count
 
         Model::logger.debug "Retrieved #{likes_res_count} likes"
@@ -67,6 +77,9 @@ module Mumblr
 
         # Stop if we have as many as we want
         break if @raw_likes.count >= @wanted_count
+
+        # The post count is just wrong
+        break if freewheel_count > MAX_FREEWHEEL
       end
 
       Model::logger.debug "Got #{@raw_likes.count} likes"
