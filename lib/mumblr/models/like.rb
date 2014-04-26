@@ -40,8 +40,7 @@ module Mumblr
           api_params[:limit] = 20
         end
 
-        api_params[:offset] = found_total
-
+        Model::logger.debug "Asking for #{api_params[:limit]} starting at #{api_params[:offset]}"
         likes_res = client.blog_likes(blog.name, api_params)
 
         unless total_likes
@@ -56,6 +55,7 @@ module Mumblr
           freewheel_count = 0
         end
         found_total += likes_res_count
+        api_params[:offset] += api_params[:limit]
 
         Model::logger.debug "Retrieved #{likes_res_count} likes"
         # Filter:

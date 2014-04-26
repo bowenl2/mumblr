@@ -43,12 +43,13 @@ module Mumblr
     def download(directory, origin=nil)
       unless url
         Model::logger.warn("Skipping download for #{id} (no URL specified)")
+        return
       end
       dest_path = File.join(directory, post.blog.name)
       dest_path = File.join(dest_path, origin) if origin
       FileUtils.mkdir_p(dest_path) unless File.exists?(dest_path)
       dest_path = File.join(dest_path, File.basename(url))
-      # TODO Check for cache
+      # TODO check for identical file
       if File.exists?(dest_path)
         STDERR.puts("Skipping #{dest_path} (exists)")
         return
