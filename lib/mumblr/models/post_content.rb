@@ -63,7 +63,7 @@ module Mumblr
                  if t && 0 < t
                    title = File.basename(url)
                    pbar = ProgressBar.new(title, t)
-                   pbar.format = "%-30s %3d%% %s %s"
+                   pbar.format = "%-15s %3d%% %s %s"
                    pbar.file_transfer_mode
                  end
                },
