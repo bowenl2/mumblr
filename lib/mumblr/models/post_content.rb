@@ -73,13 +73,15 @@ module Mumblr
                  pbar.finish if pbar and s == content_length
                }) do |f|
             IO.copy_stream(f, dest_file)
-            retrieved_at = DateTime.now
-            save
+            self.retrieved_at = DateTime.now
+            update_success = save
+            unless update_success
+              Model::logger.warn "Could not save retrieved_at: #{}"
+            end
             full_dest = File.expand_path(dest_path)
             STDERR.puts("file://#{full_dest}")
           end
         end
-        retrieved_at = DateTime.now
       rescue
         STDERR.puts("error with #{url}")
       end
