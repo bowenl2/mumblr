@@ -17,7 +17,7 @@ module Mumblr
     # END_DESC
     class_option :type, type: :string
     class_option :count, type: :numeric
-    class_option :data_store, type: :string, desc: "The path to which downloaded files are stored"
+    class_option :data_store, type: :string, desc: "The path to which downloaded files are stored (default '~/mumblr-data')"
     class_option :download, type: :boolean, desc: "Download the files to DATA_STORE"
 
     desc "posts <options>", "Process blog's contents' URLs"
