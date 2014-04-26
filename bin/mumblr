@@ -38,8 +38,8 @@ module Mumblr
     desc "likes <options>", "Process blog's likes' contents' URLs"
     def likes
       puts "Enumerating contents of likes of #{options[:blog]}"
-      blog = Blog.retrieve(options[:blog], tumblr_params)
-      blog.likes.each do |p|
+      blog = Blog.retrieve(options[:blog])
+      blog.retrieve_likes(tumblr_params).map{|l| l.post}.each do |p|
         p.post_contents.each do |pc|
           if options[:download]
             pc.download(content_store_base)
