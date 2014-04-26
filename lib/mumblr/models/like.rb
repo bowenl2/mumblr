@@ -52,7 +52,7 @@ module Mumblr
         # We have to do this manually since we can't put in a type
         if tumblr_params[:type]
           likes_res['liked_posts'] = likes_res['liked_posts'].select{|p| p['type'] == tumblr_params[:type]}
-          Model::logger.debug "After filtering, we will add #{likes_res['liked_posts'].count} posts"
+          Model::logger.debug "Filtered count: #{likes_res['liked_posts'].count} posts"
         end
 
         # Extremely confusing:
