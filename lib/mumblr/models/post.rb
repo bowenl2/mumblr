@@ -59,7 +59,6 @@ module Mumblr
           PostContent.api_extract_from_post(post, post_hash)
         end
       end
-
     end
 
     def self.from_api(post_hash, blog)

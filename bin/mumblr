@@ -23,8 +23,8 @@ module Mumblr
     desc "posts <options>", "Process blog's contents' URLs"
     def posts
       puts "Enumerating contents of #{options[:blog]}"
-      blog = Blog.retrieve(options[:blog], tumblr_params)
-      blog.posts.each do |p|
+      blog = Blog.retrieve(options[:blog])
+      blog.retrieve_posts(tumblr_params).each do |p|
         p.post_contents.each do |pc|
           if options[:download]
             pc.download(content_store_base)
