@@ -38,8 +38,8 @@ module Mumblr
                        })
     end
 
-    # TODO Refactor this so the callbacks can be passed in
-    # origin: 'like' or nil
+    # FIXME Refactor this so the callbacks can be passed in
+    # origin: 'likes' or whatever
     def download(directory, origin=nil)
       unless url
         Model::logger.warn("Skipping download for #{id} (no URL specified)")
