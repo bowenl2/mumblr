@@ -21,13 +21,22 @@ module Mumblr
     #######################
     def self.retrieve_from_blog(blog, options={})
       Model::logger.debug "Requested contents of #{blog.name}"
+      @wanted_count = options[:count]
+      @wanted_count = MAX_POSTS unless @wanted_count and @wanted_count < MAX_POSTS
       unless @raw_posts
         Model::logger.debug "Retrieving from API..."
         @raw_posts = []
         # FIXME should retrieve from oldest->newest for caching reasons
         loop do
+          # If we want 50 and have 40 already, only ask for 10
+          if @wanted_count and (@raw_posts.count + 20 > @wanted_count)
+            options[:limit] = @wanted_count - @raw_posts.count
+          # Otherwise ask for the max (20)
+          else
+            options[:limit] = 20
+          end
           options[:offset] = @raw_posts.count
-          Model::logger.debug "Retrieving 20 from offset: #{@raw_posts.count}"
+          Model::logger.debug "Retrieving #{options[:limit]} from offset: #{@raw_posts.count}"
           @response = Model.client.posts(blog.name, options)
           @post_count = @response['blog']['posts'].to_i
           Model::logger.debug "\tPost count:#{@post_count}"
@@ -37,8 +46,14 @@ module Mumblr
             break
           end
           @raw_posts += posts
-          break if @raw_posts.count >= MAX_POSTS or @raw_posts.count >= @post_count
+
+          # Stop if we have all the posts
+          break if @raw_posts.count >= @post_count
+
+          # Stop if we have as many as we want
+          break if options[:count] and options[:count] > 0 and @raw_posts.count >= @wanted_count
         end
+        Model::logger.debug "Got #{@raw_posts.count} posts"
         @raw_posts.each do |post_hash|
           post = from_api(post_hash, blog)
           PostContent.api_extract_from_post(post, post_hash)
