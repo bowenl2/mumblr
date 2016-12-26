@@ -63,13 +63,12 @@ module Mumblr
                  content_length = t
                  if t && 0 < t
                    title = File.basename(url)
-                   pbar = ProgressBar.new(title, t)
-                   pbar.format = "%-15s %3d%% %s %s"
-                   pbar.file_transfer_mode
+                   pbar = ProgressBar.create(title: title, total: t)
+                   # pbar.file_transfer_mode
                  end
                },
                progress_proc: lambda {|s|
-                 pbar.set s if pbar
+                 pbar.progress = s if pbar
                  pbar.finish if pbar and s == content_length
                }) do |f|
             IO.copy_stream(f, dest_file)
@@ -82,8 +81,8 @@ module Mumblr
             STDERR.puts("file://#{full_dest}")
           end
         end
-      rescue
-        STDERR.puts("error with #{url}")
+      rescue StandardError => e
+        STDERR.puts("error with #{url}: #{e}")
       end
     end
 
